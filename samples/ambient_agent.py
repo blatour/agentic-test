@@ -218,7 +218,10 @@ def generate_mock_analysis(raw_event):
     if "security" in lowered or "unrecognized" in lowered:
         level = "High"
         recommendation = "Investigate immediately, isolate the device, and review recent network logs."
-    elif "warning" in lowered or "spiked" in lowered:
+    elif "fetch failed" in lowered or "fetch-error" in lowered:
+        level = "Medium"
+        recommendation = "Retry next cycle and inspect network/API limits if failures persist."
+    elif "warning" in lowered or "spiked" in lowered or "error" in lowered:
         level = "Medium"
         recommendation = "Track this signal over the next hour and alert if usage remains elevated."
     else:
