@@ -58,10 +58,35 @@ $headers = @{
     "X-GitHub-Api-Version" = "2022-11-28"
 }
 
+function Find-OpenIssueByTitle {
+    param(
+        [string]$Owner,
+        [string]$Repo,
+        [string]$Title,
+        [hashtable]$Headers
+    )
+
+    $query = ('"{0}" repo:{1}/{2} is:issue is:open' -f $Title, $Owner, $Repo)
+    $encodedTitle = [System.Uri]::EscapeDataString($query)
+    $searchUrl = "https://api.github.com/search/issues?q=$encodedTitle&per_page=10"
+    $searchResponse = Invoke-RestMethod -Method Get -Uri $searchUrl -Headers $Headers
+    if ($searchResponse.total_count -gt 0) {
+        return $searchResponse.items[0]
+    }
+
+    return $null
+}
+
 foreach ($issue in $config.issues) {
     $bodyPath = $issue.bodyFile
     if (-not (Test-Path $bodyPath)) {
         throw "Issue body file not found: $bodyPath"
+    }
+
+    $existing = Find-OpenIssueByTitle -Owner $owner -Repo $repo -Title ([string]$issue.title) -Headers $headers
+    if ($existing) {
+        Write-Info "Skipping existing open issue #$($existing.number): $($issue.title)"
+        continue
     }
 
     $labels = @()
