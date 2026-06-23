@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("status", "setup", "build", "run", "deploy", "logs", "stop", "memory", "ollama-status", "health", "diagnostics")]
+    [ValidateSet("status", "setup", "build", "run", "deploy", "logs", "stop", "memory", "ollama-status", "health", "diagnostics", "replay")]
     [string]$Action = "deploy",
     [string]$MachineName = "podman-machine-default",
     [string]$ImageName = "ambient-agentic-test",
@@ -7,6 +7,7 @@ param(
     [string]$DataVolume = "ambient-agent-data",
     [int]$IntervalSeconds = 120,
     [switch]$DryRun,
+    [switch]$StructuredLogs,
     [string]$NasaApiKey = "DEMO_KEY",
     [string]$OllamaContainerName = "ollama-backend",
     [string]$OllamaModel = "qwen3.5:4b",
@@ -244,6 +245,9 @@ function Run-Container {
     if ($DryRun) {
         $agentArgs += "--dry-run"
     }
+    if ($StructuredLogs) {
+        $agentArgs += "--structured-logs"
+    }
 
     $runArgs = @(
         "run",
@@ -396,6 +400,18 @@ function Show-Diagnostics {
     }
 }
 
+function Show-Replay {
+    Write-Info "Running one dry-run replay cycle inside container '$ContainerName'"
+    & podman exec $ContainerName python samples/ambient_agent.py `
+        --source web-all `
+        --dry-run `
+        --once `
+        --state-file /app/data/ambient_agent_state.json
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "(replay failed: container may not be running)"
+    }
+}
+
 function Stop-Container {
     Write-Info "Stopping and removing '$ContainerName'"
     $null = & podman rm -f $ContainerName 2>$null
@@ -462,5 +478,9 @@ switch ($Action) {
     "diagnostics" {
         Ensure-MachineRunning
         Show-Diagnostics
+    }
+    "replay" {
+        Ensure-MachineRunning
+        Show-Replay
     }
 }

@@ -8,9 +8,11 @@ logging for the Ambient Agent.
 | Goal | Command |
 |---|---|
 | Start full deployment | `.\scripts\podman-ambient.ps1 -Action deploy` |
+| Deploy with structured JSON logs | `.\scripts\podman-ambient.ps1 -Action deploy -StructuredLogs` |
 | Check infrastructure status | `.\scripts\podman-ambient.ps1 -Action status` |
 | View agent health report | `.\scripts\podman-ambient.ps1 -Action health` |
 | Run full diagnostics | `.\scripts\podman-ambient.ps1 -Action diagnostics` |
+| Run a dry-run replay cycle | `.\scripts\podman-ambient.ps1 -Action replay` |
 | Tail container logs | `.\scripts\podman-ambient.ps1 -Action logs` |
 | Inspect agent memory | `.\scripts\podman-ambient.ps1 -Action memory` |
 | Check Ollama model status | `.\scripts\podman-ambient.ps1 -Action ollama-status` |
@@ -99,14 +101,14 @@ normal `stdout` progress output.
 
 ### Enabling in a container run
 
-Set the flag when starting the container manually:
+Pass the `-StructuredLogs` switch when deploying or running:
 
 ```powershell
-.\scripts\podman-ambient.ps1 -Action run
-# Then edit the Run-Container call or add --structured-logs to $agentArgs
+.\scripts\podman-ambient.ps1 -Action deploy -StructuredLogs
+.\scripts\podman-ambient.ps1 -Action run -StructuredLogs
 ```
 
-Or pass it directly:
+Or pass the flag directly to the agent process:
 
 ```powershell
 podman exec -it ambient-agent python samples/ambient_agent.py --source web-all --structured-logs
@@ -203,6 +205,25 @@ python samples/ambient_agent.py --source web-all --dry-run --once
 ```powershell
 python samples/ambient_agent.py --health --state-file ambient_agent_state.json
 ```
+
+---
+
+## Replay Action
+
+The `replay` action runs a single dry-run cycle inside the running container
+without making network calls to external sources.  It is useful for:
+
+- Verifying the container and state file are healthy after a restart.
+- Exercising the full pipeline loop (ingest → analyze → persist) with mock data
+  to confirm nothing is broken before a real run.
+
+```powershell
+.\scripts\podman-ambient.ps1 -Action replay
+```
+
+The replay cycle writes a dry-run entry to the history file and updates the
+state file, so you can follow up with a `health` check to confirm the state
+was written correctly.
 
 ---
 
