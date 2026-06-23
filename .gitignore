@@ -1,9 +1,83 @@
+# -----------------------------
+# Python bytecode and caches
+# -----------------------------
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-.pytest_cache/
-*.egg-info/
-dist/
+*$py.class
+
+# C extensions
+*.so
+
+# -----------------------------
+# Build, packaging, and artifacts
+# -----------------------------
 build/
+dist/
+*.egg-info/
 .eggs/
+*.egg
+pip-wheel-metadata/
+
+# -----------------------------
+# Virtual environments
+# -----------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# -----------------------------
+# Test, coverage, and tooling caches
+# -----------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+.hypothesis/
+.dmypy.json
+dmypy.json
+
+# -----------------------------
+# Jupyter and notebooks
+# -----------------------------
+.ipynb_checkpoints/
+
+# -----------------------------
+# Logs and runtime output
+# -----------------------------
+*.log
+logs/
+
+# -----------------------------
+# Local environment and secrets
+# -----------------------------
+.env
+.env.*
+*.local
+
+# -----------------------------
+# IDE/editor noise
+# -----------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -----------------------------
+# OS files
+# -----------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# -----------------------------
+# Optional local data snapshots
+# Uncomment if you do not want local runtime state/history tracked
+# -----------------------------
+# ambient_agent_history.md
+# ambient_agent_state.json

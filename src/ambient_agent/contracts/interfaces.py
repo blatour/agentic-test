@@ -7,6 +7,8 @@ base classes below) and declare a compatible ``plugin_major_version``.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Dict, Iterable, List, Protocol
 
 from .versions import CONTRACT_MAJOR_VERSION
 from .knowledge_state import KnowledgeState
@@ -103,3 +105,55 @@ class SinkAdapter(PluginBase):
         action_candidates:
             Action candidates produced by all registered policy adapters.
         """
+
+
+# ---------------------------------------------------------------------------
+# Additional types used by Agent C (analysis), Agent D (policy/notifications)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class AnalysisResult:
+    summary: str
+    confidence: float
+    reason_codes: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class ActionDecision:
+    decision_id: str
+    changeset_id: str
+    policy_id: str
+    action_type: str
+    priority: str
+    should_execute: bool
+    reason: str
+    idempotency_key: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class DeliveryReceipt:
+    sink_type: str
+    status: str
+    external_reference: str | None = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+class CompareEngine(Protocol):
+    def compare(
+        self,
+        envelopes: Iterable[Any],
+        current_state: KnowledgeState,
+    ) -> ChangeSet:
+        ...
+
+
+class PolicyEngine(Protocol):
+    def decide(
+        self,
+        changeset: ChangeSet,
+        current_state: KnowledgeState,
+    ) -> List[ActionDecision]:
+        ...
