@@ -1,5 +1,5 @@
 param(
-    [ValidateSet("status", "setup", "build", "run", "deploy", "logs", "stop", "memory", "ollama-status")]
+    [ValidateSet("status", "setup", "build", "run", "deploy", "logs", "stop", "memory", "ollama-status", "health", "diagnostics")]
     [string]$Action = "deploy",
     [string]$MachineName = "podman-machine-default",
     [string]$ImageName = "ambient-agentic-test",
@@ -364,6 +364,38 @@ function Recreate-OllamaWithDevices {
     Invoke-Podman -PodmanArgs $runArgs
 }
 
+function Show-Health {
+    Write-Info "Agent health report (reads from persisted state inside container)"
+    & podman exec $ContainerName python samples/ambient_agent.py `
+        --health `
+        --state-file /app/data/ambient_agent_state.json
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "(health report unavailable: container may not be running or state not yet written)"
+    }
+}
+
+function Show-Diagnostics {
+    Write-Info "=== Diagnostics ==="
+    Write-Host ""
+
+    Write-Info "--- Container and Infrastructure Status ---"
+    Show-Status
+    Write-Host ""
+
+    Write-Info "--- Agent Health ---"
+    Show-Health
+    Write-Host ""
+
+    Write-Info "--- Agent Memory ---"
+    Show-Memory
+    Write-Host ""
+
+    if (-not $SkipOllamaCheck) {
+        Write-Info "--- Ollama Status ---"
+        Show-OllamaStatus
+    }
+}
+
 function Stop-Container {
     Write-Info "Stopping and removing '$ContainerName'"
     $null = & podman rm -f $ContainerName 2>$null
@@ -422,5 +454,13 @@ switch ($Action) {
     "ollama-status" {
         Ensure-MachineRunning
         Show-OllamaStatus
+    }
+    "health" {
+        Ensure-MachineRunning
+        Show-Health
+    }
+    "diagnostics" {
+        Ensure-MachineRunning
+        Show-Diagnostics
     }
 }
