@@ -4,27 +4,14 @@
     "web_usgs": "aka2026mjevoe",
     "web_nasa_apod": "2026-06-23"
   },
-  "cycle_count": 5,
-  "last_run": "2026-06-23 18:03:46",
-  "last_cycle_mode": "web-all",
+  "cycle_count": 6,
+  "last_run": "2026-06-23 23:26:01",
+  "last_cycle_mode": "simulated",
   "last_cycle_checks": [
     {
-      "source": "web-github",
+      "source": "simulated",
       "status": "ok",
-      "raw_event": "WEB [2026-06-23T21:58:41Z] - GitHub PushEvent by @titiarrancadio on titiarrancadio/final-work (id=13784188819).",
-      "analysis": "- **Severity:** Low\n- **Summary:** WEB [2026-06-23T21:58:41Z] - GitHub PushEvent by @titiarrancadio on titiarrancadio/final-work (id=13784188819).\n- **Recommendation:** No urgent action required; record the event and continue monitoring."
-    },
-    {
-      "source": "web-usgs",
-      "status": "ok",
-      "raw_event": "WEB [quake] - USGS earthquake M1.7 near 53 km S of Denali National Park, Alaska (time_ms=1782250250114, id=aka2026mjevoe, info=https://earthquake.usgs.gov/earthquakes/eventpage/aka2026mjevoe).",
-      "analysis": "- **Severity:** Low\n- **Summary:** WEB [quake] - USGS earthquake M1.7 near 53 km S of Denali National Park, Alaska (time_ms=1782250250114, id=aka2026mjevoe, info=https://earthquake.usgs.gov/earthquakes/eventpage/aka2026mjevoe).\n- **Recommendation:** No urgent action required; record the event and continue monitoring."
-    },
-    {
-      "source": "web-nasa",
-      "status": "ok",
-      "raw_event": "WEB [2026-06-23] - NASA APOD 'Flying Past Neptune's Moon Triton' (video, url=https://apod.nasa.gov/apod/image/2606/TritonPass_voyager2.mp4).",
-      "analysis": "- **Severity:** Low\n- **Summary:** WEB [2026-06-23] - NASA APOD 'Flying Past Neptune's Moon Triton' (video, url=https://apod.nasa.gov/apod/image/2606/TritonPass_voyager2.mp4).\n- **Recommendation:** No urgent action required; record the event and continue monitoring."
+      "raw_event": "LOG [16:41:00] - Deploy pipeline success: SurvivalTrial build #104 compiled with 0 errors, 2 minor animation warnings."
     }
   ]
 }
