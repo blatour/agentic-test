@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """Plugin interface ABCs for Contract V1.
 
 All adapters must inherit from :class:`PluginBase` (via one of the four concrete
@@ -8,6 +7,8 @@ base classes below) and declare a compatible ``plugin_major_version``.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Dict, Iterable, List, Protocol
 
 from .versions import CONTRACT_MAJOR_VERSION
 from .knowledge_state import KnowledgeState
@@ -104,15 +105,11 @@ class SinkAdapter(PluginBase):
         action_candidates:
             Action candidates produced by all registered policy adapters.
         """
-=======
-from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, Iterable, List, Protocol
 
-from ambient_agent.contracts.changeset import ChangeSet
-from ambient_agent.contracts.envelopes import CanonicalEnvelope
-from ambient_agent.contracts.knowledge_state import KnowledgeState
+# ---------------------------------------------------------------------------
+# Additional types used by Agent C (analysis), Agent D (policy/notifications)
+# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -144,28 +141,10 @@ class DeliveryReceipt:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
-class SourceAdapter(Protocol):
-    source_type: str
-
-    def ingest(self, source_config: Dict[str, Any]) -> Iterable[CanonicalEnvelope]:
-        ...
-
-
-class AnalysisProvider(Protocol):
-    provider_type: str
-
-    def analyze(
-        self,
-        envelope: CanonicalEnvelope,
-        policy_config: Dict[str, Any],
-    ) -> AnalysisResult:
-        ...
-
-
 class CompareEngine(Protocol):
     def compare(
         self,
-        envelopes: Iterable[CanonicalEnvelope],
+        envelopes: Iterable[Any],
         current_state: KnowledgeState,
     ) -> ChangeSet:
         ...
@@ -178,11 +157,3 @@ class PolicyEngine(Protocol):
         current_state: KnowledgeState,
     ) -> List[ActionDecision]:
         ...
-
-
-class SinkAdapter(Protocol):
-    sink_type: str
-
-    def dispatch(self, decision: ActionDecision) -> DeliveryReceipt:
-        ...
->>>>>>> origin/main
