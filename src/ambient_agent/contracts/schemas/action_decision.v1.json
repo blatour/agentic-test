@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "action_decision.v1",
+  "title": "ActionDecisionV1",
+  "type": "object",
+  "required": [
+    "decision_id",
+    "changeset_id",
+    "policy_id",
+    "action_type",
+    "priority",
+    "should_execute",
+    "reason",
+    "idempotency_key",
+    "metadata"
+  ],
+  "properties": {
+    "decision_id": { "type": "string" },
+    "changeset_id": { "type": "string" },
+    "policy_id": { "type": "string" },
+    "action_type": { "type": "string" },
+    "priority": { "type": "string" },
+    "should_execute": { "type": "boolean" },
+    "reason": { "type": "string" },
+    "idempotency_key": { "type": "string" },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": false
+}

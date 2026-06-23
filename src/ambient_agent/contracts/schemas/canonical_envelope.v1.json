@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "canonical_envelope.v1",
+  "title": "CanonicalEnvelopeV1",
+  "type": "object",
+  "required": [
+    "envelope_id",
+    "envelope_type",
+    "envelope_version",
+    "tenant_id",
+    "correlation_id",
+    "occurred_at",
+    "producer",
+    "payload_schema_version",
+    "payload"
+  ],
+  "properties": {
+    "envelope_id": { "type": "string" },
+    "envelope_type": { "type": "string" },
+    "envelope_version": { "type": "string", "pattern": "^1\\.[0-9]+$" },
+    "tenant_id": { "type": "string" },
+    "correlation_id": { "type": "string" },
+    "causation_id": { "type": ["string", "null"] },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "producer": { "type": "string" },
+    "payload_schema_version": { "type": "string" },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false
+}
