@@ -21,7 +21,8 @@ DEFAULT_NASA_API_KEY = os.getenv("NASA_API_KEY", "DEMO_KEY")
 
 SIMULATED_EVENTS = [
     "LOG [16:40:12] - Node-02 high memory warning: Container 'kube-proxy' spiked to 88% allocation.",
-    "LOG [16:41:00] - Deploy pipeline success: SurvivalTrial build #104 compiled with 0 errors, 2 minor animation warnings.",
+    "LOG [16:41:00] - Deploy pipeline success: SurvivalTrial build #104 compiled with 0 errors, "
+    "2 minor animation warnings.",
     "LOG [16:41:45] - Home Automation sync: Govee light temperature adjusted to 3000K based on solar elevation.",
     "LOG [16:42:10] - Security: Unrecognized local MAC address detected attempting to handshake on IoT VLAN.",
 ]
@@ -30,6 +31,7 @@ SIMULATED_EVENTS = [
 LAST_SEEN_EVENT_IDS = {}
 
 WEB_ALL_SOURCES = ["web-github", "web-usgs", "web-nasa"]
+
 
 def fetch_simulated_system_stream():
     """
@@ -393,7 +395,11 @@ def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_ke
                     "source": source,
                     "status": "fetch-error",
                     "raw_event": f"Fetch failed for {source}: {e}",
-                    "analysis": "- **Severity:** Medium\n- **Summary:** Source fetch failed this cycle.\n- **Recommendation:** Retry next cycle and inspect network/API limits if failures persist.",
+                    "analysis": (
+                        "- **Severity:** Medium\n"
+                        "- **Summary:** Source fetch failed this cycle.\n"
+                        "- **Recommendation:** Retry next cycle and inspect network/API limits if failures persist."
+                    ),
                 }
             )
         except Exception as e:
@@ -402,7 +408,11 @@ def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_ke
                     "source": source,
                     "status": "error",
                     "raw_event": f"Unexpected failure for {source}: {e}",
-                    "analysis": "- **Severity:** Medium\n- **Summary:** Source processing failed this cycle.\n- **Recommendation:** Review traceback and keep agent running for next interval.",
+                    "analysis": (
+                        "- **Severity:** Medium\n"
+                        "- **Summary:** Source processing failed this cycle.\n"
+                        "- **Recommendation:** Review traceback and keep agent running for next interval."
+                    ),
                 }
             )
 
@@ -456,6 +466,7 @@ def parse_args():
         help="Path to persistent state file used to remember last seen events.",
     )
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_args()
