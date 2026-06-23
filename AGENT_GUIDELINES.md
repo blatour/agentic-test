@@ -9,8 +9,9 @@ Ensure multiple agents can deliver in parallel without stepping on each other, w
 ## Source of Truth
 
 1. Architecture and milestones: `IMPLEMENTATION_PLAN.md`
-2. Issue definitions and dependencies: `ISSUE_PACK.md`
-3. Runtime behavior baseline: `README.md`
+2. Runtime contracts and schemas: `CONTRACT_V1.md`
+3. Issue definitions and dependencies: `ISSUE_PACK.md`
+4. Runtime behavior baseline: `README.md`
 
 When conflicts arise, follow this precedence order:
 
@@ -52,8 +53,10 @@ Before feature coding beyond scaffolding, freeze these contracts:
 
 1. Canonical event schema.
 2. Analysis response schema.
-3. Error taxonomy and cycle statuses.
-4. Action payload schema.
+3. KnowledgeState model.
+4. ChangeSet model.
+5. Error taxonomy and cycle statuses.
+6. Action payload schema.
 
 Contract changes after freeze require:
 
@@ -68,6 +71,22 @@ Contract changes after freeze require:
 3. Use structured logs (event name, source, cycle_id, status, latency_ms).
 4. Prefer deterministic IDs and idempotent persistence operations.
 5. Handle source and model failures explicitly with typed categories.
+6. Do not add source-specific branching logic in orchestration code.
+7. New sources and sinks must integrate via registry and plugin interfaces only.
+8. New message types must be introduced through schema registration, not pipeline changes.
+9. Compare and policy logic must operate on ChangeSet artifacts, not raw source payloads.
+
+## Extensibility Guardrails
+
+A pull request that adds a new source, sink, or message type is valid only if all are true:
+
+1. Core pipeline stage order is unchanged.
+2. No switch or if/elif chain is added to route by source name in runtime orchestration.
+3. Adapter is discoverable through registry wiring.
+4. Contract and compatibility tests are added or updated.
+5. Configuration enables rollout without mandatory code edits in orchestration modules.
+
+If a contribution cannot meet these, it requires architecture review before merge.
 
 ## Test Requirements
 
@@ -76,6 +95,8 @@ Minimum expectations per change set:
 1. Unit tests for modified business logic.
 2. Contract tests for source adapter payload normalization.
 3. Failure-path tests for retries, parsing errors, and model timeouts where relevant.
+4. Compatibility tests for schema and plugin interface version behavior when contracts change.
+5. Loop tests proving ingest -> compare -> act -> persist over multiple cycles.
 
 Definition of merge readiness:
 

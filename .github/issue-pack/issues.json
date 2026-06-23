@@ -5,6 +5,11 @@
   ],
   "issues": [
     {
+      "title": "Phase 0: Contracts and Registries Guardrails",
+      "bodyFile": ".github/issue-pack/00-phase-0-contracts-registries.md",
+      "labels": ["phase-0", "architecture"]
+    },
+    {
       "title": "Agent A: Core Runtime Refactor (Phase 1)",
       "bodyFile": ".github/issue-pack/01-agent-a-core-runtime.md",
       "labels": ["agent-a", "phase-1", "architecture"]

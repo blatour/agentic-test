@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "knowledge_state.v1",
+  "title": "KnowledgeStateV1",
+  "type": "object",
+  "required": [
+    "state_id",
+    "tenant_id",
+    "as_of",
+    "open_items",
+    "active_facts",
+    "suppression_windows",
+    "risk_score"
+  ],
+  "properties": {
+    "state_id": { "type": "string" },
+    "tenant_id": { "type": "string" },
+    "as_of": { "type": "string", "format": "date-time" },
+    "open_items": { "type": "array", "items": { "type": "object" } },
+    "active_facts": { "type": "array", "items": { "type": "object" } },
+    "suppression_windows": { "type": "object" },
+    "risk_score": { "type": "number" }
+  },
+  "additionalProperties": false
+}
