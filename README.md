@@ -143,3 +143,14 @@ podman rm ambient-agent
 - `ambient_agent_state.json`: remembers last-seen IDs and last cycle summary
 - `ambient_agent_history.md`: append-only cycle output and recommendations
 
+## Enterprise Planning
+
+- Implementation plan for scaling this prototype into a realistic enterprise-style system:
+	- `IMPLEMENTATION_PLAN.md`
+- Companion issue pack and automation:
+	- `ISSUE_PACK.md`
+	- `.github/issue-pack/`
+	- `scripts/open-issues.ps1`
+- Multi-agent execution guide:
+	- `AGENT_GUIDELINES.md`
+

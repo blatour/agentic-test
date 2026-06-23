@@ -1,0 +1,38 @@
+{
+  "repo": "blatour/agentic-test",
+  "labels": [
+    "enterprise-plan"
+  ],
+  "issues": [
+    {
+      "title": "Agent A: Core Runtime Refactor (Phase 1)",
+      "bodyFile": ".github/issue-pack/01-agent-a-core-runtime.md",
+      "labels": ["agent-a", "phase-1", "architecture"]
+    },
+    {
+      "title": "Agent B: Data and Persistence (Phase 1)",
+      "bodyFile": ".github/issue-pack/02-agent-b-data-persistence.md",
+      "labels": ["agent-b", "phase-1", "persistence"]
+    },
+    {
+      "title": "Agent C: Analysis Contract and Model Gateway (Phase 1/2)",
+      "bodyFile": ".github/issue-pack/03-agent-c-analysis-gateway.md",
+      "labels": ["agent-c", "phase-1", "phase-2", "analysis"]
+    },
+    {
+      "title": "Agent D: Policy and Notification Engine (Phase 2)",
+      "bodyFile": ".github/issue-pack/04-agent-d-policy-notifications.md",
+      "labels": ["agent-d", "phase-2", "policy"]
+    },
+    {
+      "title": "Agent E: Operability and Deployment (Phase 2/3)",
+      "bodyFile": ".github/issue-pack/05-agent-e-operability-deploy.md",
+      "labels": ["agent-e", "phase-2", "phase-3", "observability"]
+    },
+    {
+      "title": "Agent F: Test and CI Quality Gates (Phase 3)",
+      "bodyFile": ".github/issue-pack/06-agent-f-test-ci.md",
+      "labels": ["agent-f", "phase-3", "ci"]
+    }
+  ]
+}
