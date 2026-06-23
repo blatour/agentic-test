@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from .versions import CONTRACT_MAJOR_VERSION, CONTRACT_MINOR_VERSION, IncompatibleVersionError, check_compatibility
 from .cycle import CyclePhase
 from .knowledge_state import KnowledgeState
@@ -18,3 +19,6 @@ __all__ = [
     "PolicyAdapter",
     "SinkAdapter",
 ]
+=======
+"""Contract types for loop artifacts and plugin interfaces."""
+>>>>>>> origin/main
