@@ -1,0 +1,17 @@
+{
+  "description": "Cycle where the source fetch fails with a network error.",
+  "cycle_id": "cycle-replay-002",
+  "source": "usgs",
+  "event": {
+    "event_id": "evt-usgs-fetch-error-001",
+    "source": "usgs",
+    "raw_event": "Fetch failed for usgs: connection refused",
+    "fetched_at": "2024-01-15T10:01:00Z",
+    "status": "fetch-error",
+    "metadata": {}
+  },
+  "expected_analysis": {
+    "severity": "Medium",
+    "recommendation_contains": "Retry"
+  }
+}

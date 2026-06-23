@@ -1,0 +1,17 @@
+{
+  "description": "Security event fixture: unrecognized device on IoT VLAN.",
+  "cycle_id": "cycle-replay-security-001",
+  "source": "simulated",
+  "event": {
+    "event_id": "evt-sim-security-001",
+    "source": "simulated",
+    "raw_event": "LOG [16:42:10] - Security: Unrecognized local MAC address detected attempting to handshake on IoT VLAN.",
+    "fetched_at": "2024-01-15T10:03:00Z",
+    "status": "ok",
+    "metadata": {}
+  },
+  "expected_analysis": {
+    "severity": "High",
+    "recommendation_contains": "Investigate"
+  }
+}
