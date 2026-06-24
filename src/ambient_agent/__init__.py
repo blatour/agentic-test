@@ -1,8 +1,1 @@
-
-"""Ambient agent package root."""
-
-__all__ = [
-    "cli",
-    "runtime",
-    "config",
-]
+"""Ambient agent modular runtime package."""

@@ -257,3 +257,42 @@ def _result_from_parse(
         model_name=model_name,
         changeset_fields=_changeset_from(fallback),
     )
+
+
+def _query_ollama(
+    prompt: str,
+    model_name: str | None = None,
+    url: str | None = None,
+    timeout: int = 120,
+) -> str:
+    selected_url = url or os.getenv("OLLAMA_URL", OllamaGateway.DEFAULT_URL)
+    selected_model = model_name or os.getenv("OLLAMA_MODEL", OllamaGateway.DEFAULT_MODEL)
+    response = requests.post(
+        selected_url,
+        json={"model": selected_model, "prompt": prompt, "stream": False},
+        timeout=timeout,
+    )
+    response.raise_for_status()
+    return response.json().get("response", "").strip()
+
+
+def _to_markdown(payload: dict) -> str:
+    return "\n".join(
+        [
+            f"- **Severity:** {payload.get('severity', 'Unknown')}",
+            f"- **Summary:** {payload.get('summary', '')}",
+            f"- **Recommendation:** {payload.get('recommendation', '')}",
+        ]
+    )
+
+
+class AnalysisGateway:
+    """Backward-compatible wrapper for legacy runtime callers."""
+
+    def __init__(self, dry_run: bool = False) -> None:
+        self.dry_run = dry_run
+        self._gateway = make_gateway(dry_run=dry_run)
+
+    def analyze(self, raw_event: str) -> str:
+        result = self._gateway.analyse(raw_event)
+        return _to_markdown(result.payload)
