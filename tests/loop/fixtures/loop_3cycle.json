@@ -1,0 +1,175 @@
+{
+  "description": "3-cycle convergence scenario: security event detected, tracked, then resolved.",
+  "cycles": [
+    {
+      "cycle_id": "loop-cycle-001",
+      "description": "Cycle 1: New high-severity security event detected on IoT VLAN.",
+      "event": {
+        "event_id": "evt-security-iot-001",
+        "source": "simulated",
+        "raw_event": "LOG [10:00:00] - Security: Unrecognized local MAC address detected attempting to handshake on IoT VLAN.",
+        "fetched_at": "2024-01-15T10:00:00Z",
+        "status": "ok",
+        "metadata": {}
+      },
+      "knowledge_state": {
+        "cycle_id": "loop-cycle-001",
+        "state_at": "2024-01-15T10:00:05Z",
+        "source_states": {
+          "simulated": {
+            "last_event_id": "evt-security-iot-001",
+            "last_status": "ok",
+            "last_seen_at": "2024-01-15T10:00:00Z"
+          }
+        },
+        "open_items": [
+          {
+            "item_id": "item-security-iot-001",
+            "description": "Unrecognized MAC address on IoT VLAN.",
+            "severity": "High"
+          }
+        ]
+      },
+      "changeset": {
+        "cycle_id": "loop-cycle-001",
+        "detected_at": "2024-01-15T10:00:05Z",
+        "changes": [
+          {
+            "field": "simulated.last_event_id",
+            "old_value": null,
+            "new_value": "evt-security-iot-001"
+          }
+        ],
+        "resolved_items": [],
+        "new_items": ["item-security-iot-001"]
+      },
+      "action_decision": {
+        "action_id": "action-loop-001",
+        "cycle_id": "loop-cycle-001",
+        "action_type": "escalate",
+        "triggered_by": "item-security-iot-001",
+        "created_at": "2024-01-15T10:00:05Z",
+        "payload": {
+          "channel": "ops-alerts",
+          "message": "High-severity security event: unrecognized MAC address on IoT VLAN."
+        }
+      },
+      "assertions": {
+        "open_items_count": 1,
+        "action_type": "escalate",
+        "new_items": ["item-security-iot-001"],
+        "resolved_items": []
+      }
+    },
+    {
+      "cycle_id": "loop-cycle-002",
+      "description": "Cycle 2: Same event still present; item remains open, follow-up action.",
+      "event": {
+        "event_id": "evt-security-iot-002",
+        "source": "simulated",
+        "raw_event": "LOG [10:30:00] - Security: Same unrecognized MAC address still active on IoT VLAN.",
+        "fetched_at": "2024-01-15T10:30:00Z",
+        "status": "ok",
+        "metadata": {}
+      },
+      "knowledge_state": {
+        "cycle_id": "loop-cycle-002",
+        "state_at": "2024-01-15T10:30:05Z",
+        "source_states": {
+          "simulated": {
+            "last_event_id": "evt-security-iot-002",
+            "last_status": "ok",
+            "last_seen_at": "2024-01-15T10:30:00Z"
+          }
+        },
+        "open_items": [
+          {
+            "item_id": "item-security-iot-001",
+            "description": "Unrecognized MAC address on IoT VLAN — still active.",
+            "severity": "High"
+          }
+        ]
+      },
+      "changeset": {
+        "cycle_id": "loop-cycle-002",
+        "detected_at": "2024-01-15T10:30:05Z",
+        "changes": [
+          {
+            "field": "simulated.last_event_id",
+            "old_value": "evt-security-iot-001",
+            "new_value": "evt-security-iot-002"
+          }
+        ],
+        "resolved_items": [],
+        "new_items": []
+      },
+      "action_decision": {
+        "action_id": "action-loop-002",
+        "cycle_id": "loop-cycle-002",
+        "action_type": "follow_up",
+        "triggered_by": "item-security-iot-001",
+        "created_at": "2024-01-15T10:30:05Z",
+        "payload": {
+          "message": "Security item still unresolved after 30 minutes."
+        }
+      },
+      "assertions": {
+        "open_items_count": 1,
+        "action_type": "follow_up",
+        "new_items": [],
+        "resolved_items": []
+      }
+    },
+    {
+      "cycle_id": "loop-cycle-003",
+      "description": "Cycle 3: Event resolved — state converges, open item closed, no further action.",
+      "event": {
+        "event_id": "evt-security-resolved-001",
+        "source": "simulated",
+        "raw_event": "LOG [11:00:00] - Security: MAC address quarantined and VLAN access revoked.",
+        "fetched_at": "2024-01-15T11:00:00Z",
+        "status": "ok",
+        "metadata": {}
+      },
+      "knowledge_state": {
+        "cycle_id": "loop-cycle-003",
+        "state_at": "2024-01-15T11:00:05Z",
+        "source_states": {
+          "simulated": {
+            "last_event_id": "evt-security-resolved-001",
+            "last_status": "ok",
+            "last_seen_at": "2024-01-15T11:00:00Z"
+          }
+        },
+        "open_items": []
+      },
+      "changeset": {
+        "cycle_id": "loop-cycle-003",
+        "detected_at": "2024-01-15T11:00:05Z",
+        "changes": [
+          {
+            "field": "simulated.last_event_id",
+            "old_value": "evt-security-iot-002",
+            "new_value": "evt-security-resolved-001"
+          }
+        ],
+        "resolved_items": ["item-security-iot-001"],
+        "new_items": []
+      },
+      "action_decision": {
+        "action_id": "action-loop-003",
+        "cycle_id": "loop-cycle-003",
+        "action_type": "none",
+        "triggered_by": "item-security-iot-001",
+        "created_at": "2024-01-15T11:00:05Z",
+        "payload": {}
+      },
+      "assertions": {
+        "open_items_count": 0,
+        "action_type": "none",
+        "new_items": [],
+        "resolved_items": ["item-security-iot-001"]
+      }
+    }
+  ]
+}

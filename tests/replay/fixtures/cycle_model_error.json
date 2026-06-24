@@ -1,0 +1,17 @@
+{
+  "description": "Cycle where the model returns an unparseable response.",
+  "cycle_id": "cycle-replay-003",
+  "source": "github",
+  "event": {
+    "event_id": "evt-github-parse-error-001",
+    "source": "github",
+    "raw_event": "Parse failure for github: Expecting value: line 1 column 1 (char 0)",
+    "fetched_at": "2024-01-15T10:02:00Z",
+    "status": "parse-error",
+    "metadata": {}
+  },
+  "expected_analysis": {
+    "severity": "Medium",
+    "recommendation_contains": "Retry"
+  }
+}

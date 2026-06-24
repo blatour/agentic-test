@@ -1,0 +1,21 @@
+{
+  "description": "Successful single-source cycle from the GitHub adapter.",
+  "cycle_id": "cycle-replay-001",
+  "source": "github",
+  "event": {
+    "event_id": "evt-github-replay-001",
+    "source": "github",
+    "raw_event": "WEB [2024-01-15T10:00:00Z] - GitHub PushEvent by @alice on alice/repo (id=evt-replay-001).",
+    "fetched_at": "2024-01-15T10:00:00Z",
+    "status": "ok",
+    "metadata": {
+      "actor": "alice",
+      "repo": "alice/repo",
+      "event_type": "PushEvent"
+    }
+  },
+  "expected_analysis": {
+    "severity": "Low",
+    "recommendation_contains": "No urgent action"
+  }
+}
