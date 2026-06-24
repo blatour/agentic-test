@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "changeset.v1",
+  "title": "ChangeSetV1",
+  "type": "object",
+  "required": [
+    "changeset_id",
+    "tenant_id",
+    "generated_at",
+    "input_envelope_ids",
+    "new_facts",
+    "changed_facts",
+    "resolved_facts",
+    "risk_delta",
+    "confidence_delta",
+    "reason_codes"
+  ],
+  "properties": {
+    "changeset_id": { "type": "string" },
+    "tenant_id": { "type": "string" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "input_envelope_ids": { "type": "array", "items": { "type": "string" } },
+    "new_facts": { "type": "array", "items": { "type": "object" } },
+    "changed_facts": { "type": "array", "items": { "type": "object" } },
+    "resolved_facts": { "type": "array", "items": { "type": "object" } },
+    "risk_delta": { "type": "number" },
+    "confidence_delta": { "type": "number" },
+    "reason_codes": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

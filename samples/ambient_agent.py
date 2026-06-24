@@ -2,9 +2,20 @@ import argparse
 import json
 import os
 import random
+import sys
 import time
+import uuid
 
 import requests
+
+# Allow importing the src/ package tree without requiring a full install.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
+from ambient_agent.observability import (
+    configure_logging,
+    emit_log,
+    CycleMetrics,
+    format_health_report,
+)
 
 # Points directly to your local Ollama endpoint.
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
@@ -319,20 +330,53 @@ def run_agent_cycle(
     source="simulated",
     web_url=DEFAULT_WEB_SOURCE_URL,
     nasa_api_key=DEFAULT_NASA_API_KEY,
+    cycle_id=None,
+    metrics=None,
 ):
+    if cycle_id is None:
+        cycle_id = str(uuid.uuid4())
+
+    emit_log("cycle.start", cycle_id=cycle_id, source=source, stage="cycle")
+    cycle_start = time.monotonic()
+
     try:
+        # --- Ingest stage ---
+        ingest_start = time.monotonic()
         if source.startswith("web"):
             raw_event = fetch_web_event_stream(source, web_url, nasa_api_key)
         else:
             raw_event = fetch_simulated_system_stream()
+        ingest_ms = (time.monotonic() - ingest_start) * 1000
+        emit_log("ingest.ok", cycle_id=cycle_id, source=source, stage="ingest", status="ok", latency_ms=ingest_ms)
+        if metrics:
+            metrics.record_source(source, "ok", ingest_ms)
+            metrics.record_stage("ingest", ingest_ms)
 
+        # --- Analyze stage ---
+        analyze_start = time.monotonic()
         if dry_run:
             analysis = generate_mock_analysis(raw_event)
+            model_status = "dry-run"
         else:
             prompt = build_prompt(raw_event)
             analysis = query_ollama(prompt)
+            model_status = "ok"
+        analyze_ms = (time.monotonic() - analyze_start) * 1000
+        emit_log("analyze.ok", cycle_id=cycle_id, source=source, stage="analyze", status=model_status, latency_ms=analyze_ms)
+        if metrics:
+            metrics.record_model(model_status, analyze_ms)
+            metrics.record_stage("analyze", analyze_ms)
 
+        # --- Persist stage ---
+        persist_start = time.monotonic()
         append_to_history(raw_event, analysis)
+        persist_ms = (time.monotonic() - persist_start) * 1000
+        emit_log("persist.ok", cycle_id=cycle_id, source=source, stage="persist", status="ok", latency_ms=persist_ms)
+        if metrics:
+            metrics.record_stage("persist", persist_ms)
+
+        cycle_ms = (time.monotonic() - cycle_start) * 1000
+        emit_log("cycle.complete", cycle_id=cycle_id, source=source, stage="cycle", status="ok", latency_ms=cycle_ms)
         print(f"[{time.strftime('%H:%M:%S')}] Cycle complete. Analysis written to {LOG_FILE}.")
         return [
             {
@@ -340,8 +384,13 @@ def run_agent_cycle(
                 "status": "ok",
                 "raw_event": raw_event,
             }
-        ]
+        ], {"status": "ok", "latency_ms": analyze_ms}
+
     except requests.RequestException as e:
+        ingest_ms = (time.monotonic() - cycle_start) * 1000
+        emit_log("ingest.error", cycle_id=cycle_id, source=source, stage="ingest", status="fetch-error", latency_ms=ingest_ms, error=str(e))
+        if metrics:
+            metrics.record_source(source, "fetch-error", ingest_ms)
         print(f"Cycle execution failed due to HTTP/network error: {e}")
         return [
             {
@@ -349,8 +398,12 @@ def run_agent_cycle(
                 "status": "fetch-error",
                 "raw_event": f"Fetch failed for {source}: {e}",
             }
-        ]
+        ], {"status": "fetch-error", "latency_ms": None}
     except ValueError as e:
+        ingest_ms = (time.monotonic() - cycle_start) * 1000
+        emit_log("ingest.error", cycle_id=cycle_id, source=source, stage="ingest", status="parse-error", latency_ms=ingest_ms, error=str(e))
+        if metrics:
+            metrics.record_source(source, "parse-error")
         print(f"Cycle execution failed due to invalid JSON response: {e}")
         return [
             {
@@ -358,8 +411,12 @@ def run_agent_cycle(
                 "status": "parse-error",
                 "raw_event": f"Parse failure for {source}: {e}",
             }
-        ]
+        ], {"status": "parse-error", "latency_ms": None}
     except Exception as e:
+        cycle_ms = (time.monotonic() - cycle_start) * 1000
+        emit_log("cycle.error", cycle_id=cycle_id, source=source, stage="cycle", status="error", latency_ms=cycle_ms, error=str(e))
+        if metrics:
+            metrics.record_source(source, "error")
         print(f"Cycle execution failed: {e}")
         return [
             {
@@ -367,19 +424,39 @@ def run_agent_cycle(
                 "status": "error",
                 "raw_event": f"Unexpected failure for {source}: {e}",
             }
-        ]
+        ], {"status": "error", "latency_ms": None}
 
 
-def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_key=DEFAULT_NASA_API_KEY):
+def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_key=DEFAULT_NASA_API_KEY, cycle_id=None, metrics=None):
+    if cycle_id is None:
+        cycle_id = str(uuid.uuid4())
+
+    emit_log("cycle.start", cycle_id=cycle_id, source="web-all", stage="cycle")
+    cycle_start = time.monotonic()
     entries = []
 
     for source in WEB_ALL_SOURCES:
         try:
+            ingest_start = time.monotonic()
             raw_event = fetch_web_event_stream(source, web_url, nasa_api_key)
+            ingest_ms = (time.monotonic() - ingest_start) * 1000
+            emit_log("ingest.ok", cycle_id=cycle_id, source=source, stage="ingest", status="ok", latency_ms=ingest_ms)
+            if metrics:
+                metrics.record_source(source, "ok", ingest_ms)
+                metrics.record_stage("ingest", ingest_ms)
+
+            analyze_start = time.monotonic()
             if dry_run:
                 analysis = generate_mock_analysis(raw_event)
+                model_status = "dry-run"
             else:
                 analysis = query_ollama(build_prompt(raw_event))
+                model_status = "ok"
+            analyze_ms = (time.monotonic() - analyze_start) * 1000
+            emit_log("analyze.ok", cycle_id=cycle_id, source=source, stage="analyze", status=model_status, latency_ms=analyze_ms)
+            if metrics:
+                metrics.record_model(model_status, analyze_ms)
+                metrics.record_stage("analyze", analyze_ms)
 
             entries.append(
                 {
@@ -390,6 +467,10 @@ def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_ke
                 }
             )
         except requests.RequestException as e:
+            ingest_ms = (time.monotonic() - ingest_start) * 1000 if 'ingest_start' in dir() else None
+            emit_log("ingest.error", cycle_id=cycle_id, source=source, stage="ingest", status="fetch-error", error=str(e))
+            if metrics:
+                metrics.record_source(source, "fetch-error", ingest_ms)
             entries.append(
                 {
                     "source": source,
@@ -403,6 +484,9 @@ def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_ke
                 }
             )
         except Exception as e:
+            emit_log("cycle.error", cycle_id=cycle_id, source=source, stage="cycle", status="error", error=str(e))
+            if metrics:
+                metrics.record_source(source, "error")
             entries.append(
                 {
                     "source": source,
@@ -416,7 +500,18 @@ def run_web_all_cycle(dry_run=False, web_url=DEFAULT_WEB_SOURCE_URL, nasa_api_ke
                 }
             )
 
+    persist_start = time.monotonic()
     append_multi_source_history(entries)
+    persist_ms = (time.monotonic() - persist_start) * 1000
+    emit_log("persist.ok", cycle_id=cycle_id, source="web-all", stage="persist", status="ok", latency_ms=persist_ms)
+    if metrics:
+        metrics.record_stage("persist", persist_ms)
+
+    cycle_ms = (time.monotonic() - cycle_start) * 1000
+    emit_log("cycle.complete", cycle_id=cycle_id, source="web-all", stage="cycle", status="ok", latency_ms=cycle_ms)
+    if metrics:
+        metrics.record_stage("cycle", cycle_ms)
+
     print(
         f"[{time.strftime('%H:%M:%S')}] Multi-source cycle complete. "
         f"Summary written to {LOG_FILE}."
@@ -465,6 +560,16 @@ def parse_args():
         default=STATE_FILE,
         help="Path to persistent state file used to remember last seen events.",
     )
+    parser.add_argument(
+        "--structured-logs",
+        action="store_true",
+        help="Emit structured JSON log records to stderr for each pipeline stage.",
+    )
+    parser.add_argument(
+        "--health",
+        action="store_true",
+        help="Print health report from the current state file and exit.",
+    )
     return parser.parse_args()
 
 
@@ -472,6 +577,14 @@ if __name__ == "__main__":
     args = parse_args()
     state = load_agent_state(args.state_file)
     hydrate_runtime_state(state)
+
+    if args.structured_logs:
+        configure_logging(enabled=True)
+
+    # --health: print report from persisted state and exit.
+    if args.health:
+        print(format_health_report(state))
+        sys.exit(0)
 
     print(f"Starting Ambient Server Agent POC using {MODEL_NAME}...")
     print(f"Monitoring background stream. Logging updates to: {os.path.abspath(LOG_FILE)}\n")
@@ -488,29 +601,41 @@ if __name__ == "__main__":
         print("NASA source using DEMO_KEY. For higher limits, set NASA_API_KEY.\n")
 
     cycles_completed = 0
+    metrics = CycleMetrics()
 
     try:
         while True:
+            cycle_id = str(uuid.uuid4())
+            emit_log("agent.cycle", cycle_id=cycle_id, source=args.source, model=MODEL_NAME)
+
             if args.source == "web-all":
                 cycle_entries = run_web_all_cycle(
                     dry_run=args.dry_run,
                     web_url=args.web_url,
                     nasa_api_key=args.nasa_api_key,
+                    cycle_id=cycle_id,
+                    metrics=metrics,
                 )
+                last_model_status = None
             else:
-                cycle_entries = run_agent_cycle(
+                cycle_entries, last_model_status = run_agent_cycle(
                     dry_run=args.dry_run,
                     source=args.source,
                     web_url=args.web_url,
                     nasa_api_key=args.nasa_api_key,
+                    cycle_id=cycle_id,
+                    metrics=metrics,
                 )
             cycles_completed += 1
+            metrics.record_cycle()
 
             state["last_seen_event_ids"] = dict(LAST_SEEN_EVENT_IDS)
             state["cycle_count"] = state.get("cycle_count", 0) + 1
             state["last_run"] = time.strftime("%Y-%m-%d %H:%M:%S")
             state["last_cycle_mode"] = args.source
             state["last_cycle_checks"] = cycle_entries
+            if last_model_status:
+                state["last_model_status"] = {**last_model_status, "model": MODEL_NAME}
             save_agent_state(args.state_file, state)
 
             if args.once:

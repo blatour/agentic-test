@@ -147,10 +147,16 @@ podman rm ambient-agent
 
 - Implementation plan for scaling this prototype into a realistic enterprise-style system:
 	- `IMPLEMENTATION_PLAN.md`
+- Contract baseline for parallel implementation:
+	- `CONTRACT_V1.md`
+	- `AGENT_TASKS_V1.md`
+	- `AGENT_WAVES.md`
+	- `src/ambient_agent/contracts/`
 - Companion issue pack and automation:
 	- `ISSUE_PACK.md`
 	- `.github/issue-pack/`
 	- `scripts/open-issues.ps1`
+	- `scripts/sync-issue-pack.ps1`
 - Multi-agent execution guide:
 	- `AGENT_GUIDELINES.md`
 
