@@ -15,7 +15,7 @@ import os
 import pytest
 
 from contracts.canonical_event import validate_canonical_event
-import ambient_agent as agent
+import _samples_ambient_agent as agent
 
 
 FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")

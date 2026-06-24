@@ -1,10 +1,15 @@
-"""Unit-test conftest: ensure the monolithic samples agent is importable."""
+"""Unit-test conftest: load the monolithic samples agent for direct testing."""
 
 import sys
 import os
+import importlib.util
 
-# The unit tests import ``ambient_agent`` to reach functions defined in the
-# monolithic ``samples/ambient_agent.py`` script.  Insert samples/ at the
-# front of sys.path *after* any package-level path setup (e.g. src/ added by
-# a root conftest from main) so the file takes precedence only for these tests.
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "samples"))
+# Load ``samples/ambient_agent.py`` directly via importlib so it does not
+# conflict with the ``ambient_agent`` src-package used by contract tests.
+# Registered under the key ``_samples_ambient_agent`` so test modules can
+# do ``import _samples_ambient_agent as agent``.
+_samples_path = os.path.join(os.path.dirname(__file__), "..", "..", "samples", "ambient_agent.py")
+_spec = importlib.util.spec_from_file_location("_samples_ambient_agent", _samples_path)
+_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_mod)
+sys.modules["_samples_ambient_agent"] = _mod

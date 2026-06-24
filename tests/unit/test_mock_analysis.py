@@ -6,7 +6,7 @@ recommendation output without calling an external model.
 
 import pytest
 
-import ambient_agent as agent
+import _samples_ambient_agent as agent
 
 
 class TestGenerateMockAnalysis:

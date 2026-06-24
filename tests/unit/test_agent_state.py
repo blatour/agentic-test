@@ -9,7 +9,7 @@ import os
 import pytest
 import tempfile
 
-import ambient_agent as agent
+import _samples_ambient_agent as agent
 
 
 # ---------------------------------------------------------------------------
